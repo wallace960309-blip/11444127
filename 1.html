@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人履歷網站</title>
+    <style>
+        /* === 全局樣式與變數設定 === */
+        :root {
+            --bg-color: #0b1329;
+            --card-bg: #ece5d3;
+            --card-text: #1e293b;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-color: #3b82f6;
+        }
+
+        /* [特效] 點擊導覽列錨點時產生平滑捲動效果 - 使用 scroll-behavior: smooth */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b1329 0%, #111e38 100%);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* === 導覽列 === */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 12px 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .brand {
+            font-weight: bold;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s ease;
+        }
+
+        /* [特效] 滑鼠移至導覽列連結時變色 - 使用 transition + :hover */
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        /* === 區塊標題共用樣式 === */
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 35px 0 15px 0;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* === 1. 個人基本資訊區塊 === */
+        .header-card {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 3px solid #cbd5e1;
+            background-color: #64748b;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .slogan {
+            background-color: rgba(59, 130, 246, 0.12);
+            border-left: 3px solid #3b82f6;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 10px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .bio {
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 12px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: #c2410c;
+            color: white;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        /* === 2. 專業技能區塊 (改為4欄) === */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .skill-card {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 10px;
+            padding: 18px 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* [特效] 滑鼠移到技能卡片時微幅上浮並放大 - 使用 transition + transform: translateY & scale */
+        .skill-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        /* 使用 CSS conic-gradient 製作真正的百分比進度圓環 */
+        .skill-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: conic-gradient(var(--ring-color) var(--percent), #cbd5e1 0);
+            margin: 0 auto 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .skill-ring::before {
+            content: "";
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+        }
+
+        .skill-ring span {
+            position: relative;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--card-text);
+        }
+
+        .skill-name {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .skill-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* === 3. 個人經歷區塊 === */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .exp-card {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        /* [特效] 滑鼠移到經歷卡片時向右微幅滑動 - 使用 transition + transform: translateX */
+        .exp-card:hover {
+            transform: translateX(6px);
+        }
+
+        .exp-img {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #cbd5e1;
+            flex-shrink: 0;
+        }
+
+        .exp-content h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .exp-content .time {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .exp-content .desc {
+            font-size: 13px;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .proof-link {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .proof-link:hover {
+            text-decoration: underline;
+        }
+
+        /* === 4. 聯絡資訊與頁尾 === */
+        .footer-section {
+            margin-top: 35px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .footer-col h4 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .footer-col p {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .footer-col a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .social-links a {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: #3b82f6;
+        }
+
+        .site-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        /* === 響應式調整 (RWD) === */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .nav-links a {
+                margin: 0 8px;
+            }
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .exp-card {
+                flex-direction: column;
+            }
+            .exp-img {
+                width: 100%;
+                height: 160px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- (一) 導覽列：使用 nav 標籤與頁內錨點連結 -->
+        <nav class="navbar">
+            <span class="brand">My Portfolio</span>
+            <div class="nav-links">
+                <a href="#about">基本資訊</a>
+                <a href="#skills">專業技能</a>
+                <a href="#experience">個人經歷</a>
+                <a href="#contact">聯絡資訊</a>
+            </div>
+        </nav>
+
+        <!-- (二) 個人基本資訊：使用 header 標籤 -->
+        <header id="about" class="header-card">
+            <div class="avatar-box">
+                <!-- 請將壓縮後的個人照片放入 image 資料夾，並命名為 avatar.jpg -->
+                <img src="image/avatar.jpg" alt="個人大頭照" class="avatar-img">
+            </div>
+            <div class="profile-info">
+                <h1>姓名：張毓鈞</h1>
+                <p class="subtitle">學校/學系：中原大學 資訊管理學系 二年級</p>
+                <!-- 規定必備：個人標語 (Slogan) -->
+                <blockquote class="slogan">「用程式碼解決生活中的每一個小問題，保持好奇，持續進化。」</blockquote>
+                <p class="bio">
+                    我是一個個性開朗、喜歡團隊合作且樂於接受挑戰的學生。平時除了課業上的程式開發外，也喜歡研究介面設計與參與實務經驗。我的優點是做事細心、有責任感，面對不同的環境與工作挑戰能快速適應並上手。
+                </p>
+                <div class="tags">
+                    <span class="tag">誠實可靠</span>
+                    <span class="tag">積極自學</span>
+                    <span class="tag">團隊合作</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- (三) 個人專業與技能：使用 section 標籤，CSS 視覺化呈現 (保留4項技能) -->
+            <section id="skills" class="resume-section">
+                <h2 class="section-title">專業技能</h2>
+                <div class="skills-grid">
+                    <!-- 使用 CSS conic-gradient 製作真正的百分比圓環 -->
+                    <article class="skill-card">
+                        <div class="skill-ring" style="--percent: 80%; --ring-color: #3b82f6;">
+                            <span>80%</span>
+                        </div>
+                        <h3 class="skill-name">Python</h3>
+                        <p class="skill-desc">資料分析 / 爬蟲</p>
+                    </article>
+
+                    <article class="skill-card">
+                        <div class="skill-ring" style="--percent: 75%; --ring-color: #10b981;">
+                            <span>75%</span>
+                        </div>
+                        <h3 class="skill-name">Java</h3>
+                        <p class="skill-desc">物件導向程式設計</p>
+                    </article>
+
+                    <article class="skill-card">
+                        <div class="skill-ring" style="--percent: 85%; --ring-color: #f97316;">
+                            <span>85%</span>
+                        </div>
+                        <h3 class="skill-name">HTML / CSS</h3>
+                        <p class="skill-desc">RWD 響應式網頁</p>
+                    </article>
+
+                    <article class="skill-card">
+                        <div class="skill-ring" style="--percent: 65%; --ring-color: #eab308;">
+                            <span>65%</span>
+                        </div>
+                        <h3 class="skill-name">JavaScript</h3>
+                        <p class="skill-desc">網頁動態互動</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- (四) 個人經歷：使用 section 與 article 標籤 (包含餐飲與工廠打工) -->
+            <section id="experience" class="resume-section">
+                <h2 class="section-title">個人經歷</h2>
+                <div class="experience-grid">
+                    <article class="exp-card">
+                        <img src="image/exp1.jpg" alt="寒假餐飲業打工照片" class="exp-img">
+                        <div class="exp-content">
+                            <h3>寒假期間 — 餐飲業前場服務工讀</h3>
+                            <p class="time">2026/01 - 2026/02</p>
+                            <p class="desc">
+                                於寒假期間前往連鎖餐飲業擔任外場服務人員，主要負責顧客點餐、迎賓接待、送餐及桌面清潔等工作。這段經歷讓我深刻體會到服務業的高壓與快節奏，不僅大幅提升了我的口語溝通能力與抗壓性，也學會在忙碌中保持細心與高效率。
+                            </p>
+                            <a href="https://github.com" target="_blank" class="proof-link">查看工作證明或照片 &rarr;</a>
+                        </div>
+                    </article>
+
+                    <article class="exp-card">
+                        <img src="image/exp2.jpg" alt="暑期工廠打工照片" class="exp-img">
+                        <div class="exp-content">
+                            <h3>暑期期間 — 生產線組裝與工廠打工</h3>
+                            <p class="time">2025/07 - 2025/08</p>
+                            <p class="desc">
+                                利用暑假期間至實體工廠進行短期打工，負責產線零件組裝、品質檢驗與包裝出貨作業。在嚴謹的作業流程中，我深刻領悟到團隊分工與紀律的重要性，同時培養了優異的時間觀念與刻苦耐勞的精神，對日後面對各類實務工作非常有幫助。
+                            </p>
+                            <a href="https://github.com" target="_blank" class="proof-link">查看打工心得紀錄 &rarr;</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <!-- (五) 聯絡資訊與頁尾：包含指定電話與 IG 帳號 -->
+        <footer id="contact" class="footer-section">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>聯絡方式</h4>
+                    <p>Email：<a href="mailto:example@gmail.com">example@gmail.com</a></p>
+                    <p>電話：0979708908</p>
+                </div>
+                <div class="footer-col">
+                    <h4>社群與作品連結</h4>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/yj._309" target="_blank">Instagram (yj._309)</a>
+                        <a href="https://github.com" target="_blank">GitHub</a>
+                        <a href="https://www.linkedin.com" target="_blank">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+            <div class="site-footer">
+                版權所有 張毓鈞 &copy; 2026 個人履歷網站
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
